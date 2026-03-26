@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mavixor Hub | Active Keys</title>
+    
+    <link rel="icon" type="image/jpg" href="https://iili.io/fw75Gzx.jpg">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: radial-gradient(circle, #050505, #0a0a0a, #000); font-family: 'Segoe UI', sans-serif; color: white; user-select: none; -webkit-user-select: none; }
+        .container { text-align: center; padding: 40px; background: rgba(0, 0, 0, 0.8); border-radius: 20px; backdrop-filter: blur(15px); border: 1px solid rgba(0, 210, 255, 0.3); max-width: 400px; width: 90%; box-shadow: 0 0 30px rgba(0, 210, 255, 0.15); }
+        .image-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 30px; display: flex; justify-content: center; align-items: center; }
+        .rotating-circle { position: absolute; width: 160px; height: 160px; border: 2px dashed #00d2ff; border-radius: 50%; animation: rotate 15s linear infinite; filter: drop-shadow(0 0 5px #00d2ff); }
+        .main-img { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; z-index: 2; animation: float 4s ease-in-out infinite; border: 2px solid #00d2ff; box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        h2 { margin-bottom: 25px; letter-spacing: 5px; color: #00d2ff; text-transform: uppercase; font-size: 22px; text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
+        .btn { display: block; width: 100%; padding: 16px; margin: 18px 0; color: white; font-weight: bold; font-size: 13px; border-radius: 12px; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; background: rgba(255, 255, 255, 0.03); outline: none; }
+        .btn:hover { transform: translateY(-3px); background: rgba(0, 210, 255, 0.1); border-color: #00d2ff; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
+        .s-1 { border-left: 4px solid #00d2ff; }
+        .s-2 { border-left: 4px solid #f093fb; }
+        .s-3 { border-left: 4px solid #fce38a; }
+        #loader { font-size: 12px; color: #00d2ff; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <div class="container">
+        <div class="image-wrapper">
+            <div class="rotating-circle"></div>
+            <img src="https://iili.io/fw75Gzx.jpg" alt="Logo" class="main-img">
+        </div>
+        <h2>MAVIXOR HUB</h2>
+        <div id="btn-list"><p id="loader">SYSTEM INITIALIZING...</p></div>
+    </div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlA7LcQQZQ78IounFttgnER6hyLN9Yrng",
+            authDomain: "mavixor-340fc.firebaseapp.com",
+            projectId: "mavixor-340fc",
+            storageBucket: "mavixor-340fc.firebasestorage.app",
+            messagingSenderId: "477650793584",
+            appId: "1:477650793584:web:a41277af1b3477fd2770b5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        db.collection("buttons").orderBy("order", "asc").onSnapshot(snap => {
+            const list = document.getElementById('btn-list');
+            list.innerHTML = "";
+            let i = 1;
+            snap.forEach(doc => {
+                const data = doc.data();
+                const btn = document.createElement('button');
+                btn.innerText = data.name;
+                btn.className = `btn s-${i % 3 === 0 ? 3 : i % 3}`;
+                btn.onclick = () => { window.location.href = data.url; };
+                list.appendChild(btn);
+                i++;
+            });
+        });
+        document.onkeydown = e => { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };
+    </script>
+</body>
+</html>

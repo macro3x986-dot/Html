@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | MAVIXOR HUB</title>
+    <link rel="icon" type="image/jpg" href="https://iili.io/fw75Gzx.jpg">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { background: #050505; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .box { width: 100%; max-width: 400px; background: #0d0d0d; border: 1px solid #00d2ff; padding: 30px; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); }
+        h2 { text-align: center; color: #00d2ff; text-transform: uppercase; letter-spacing: 2px; }
+        label { font-size: 11px; color: #00d2ff; text-transform: uppercase; display: block; margin: 15px 0 5px; }
+        input { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 5px; outline: none; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #00d2ff; border: none; font-weight: bold; cursor: pointer; color: #000; text-transform: uppercase; border-radius: 5px; margin-top: 20px; transition: 0.3s; }
+        .btn:hover { background: #008cb3; }
+        .item-card { background: #151515; padding: 12px; margin-top: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #00d2ff; font-size: 13px; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="loginUI" class="box">
+        <h2>System Access</h2>
+        <label>Admin Email</label>
+        <input type="email" id="email" placeholder="Enter Email">
+        <label>Password</label>
+        <input type="password" id="pass" placeholder="Enter Password">
+        <button class="btn" onclick="login()">Authenticate</button>
+    </div>
+
+    <div id="controlUI" class="box" style="display:none;">
+        <h2>Mavixor Control</h2>
+        <label>Button Name</label><input type="text" id="b_name" placeholder="Ex: 1. Generate Key">
+        <label>Link (URL)</label><input type="text" id="b_url" placeholder="https://...">
+        <label>Order (Serial)</label><input type="number" id="b_order" placeholder="Ex: 1">
+        <button class="btn" onclick="add()">Push New Button</button>
+        <div id="list" style="margin-top:20px;"></div>
+        <button class="btn" style="background:#222; color:#fff;" onclick="location.reload()">Logout System</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlA7LcQQZQ78IounFttgnER6hyLN9Yrng",
+            authDomain: "mavixor-340fc.firebaseapp.com",
+            projectId: "mavixor-340fc",
+            storageBucket: "mavixor-340fc.firebasestorage.app",
+            messagingSenderId: "477650793584",
+            appId: "1:477650793584:web:a41277af1b3477fd2770b5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function login() { auth.signInWithEmailAndPassword(email.value, pass.value).catch(e => alert("Login Failed: " + e.message)); }
+
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                document.getElementById('loginUI').style.display = 'none';
+                document.getElementById('controlUI').style.display = 'block';
+                load();
+            }
+        });
+
+        function add() {
+            const name = document.getElementById('b_name').value;
+            const url = document.getElementById('b_url').value;
+            const order = document.getElementById('b_order').value;
+            if(name && url && order) {
+                db.collection("buttons").add({ name, url, order: parseInt(order) }).then(() => {
+                    alert("System Updated!");
+                    document.getElementById('b_name').value = '';
+                    document.getElementById('b_url').value = '';
+                    document.getElementById('b_order').value = '';
+                });
+            }
+        }
+
+        function load() {
+            db.collection("buttons").orderBy("order").onSnapshot(snap => {
+                const div = document.getElementById('list');
+                div.innerHTML = "<label>Active Buttons</label>";
+                snap.forEach(doc => {
+                    div.innerHTML += `<div class="item-card"><span>${doc.data().name}</span><button class="del-btn" onclick="del('${doc.id}')">Del</button></div>`;
+                });
+            });
+        }
+
+        function del(id) { if(confirm("Delete this button?")) db.collection("buttons").doc(id).delete(); }
+    </script>
+</body>
+</html>
